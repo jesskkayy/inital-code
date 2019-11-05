@@ -1,0 +1,97 @@
+---
+title: "CKME136-Initial-Code"
+author: "Jessica Kurilenko"
+date: "November 4, 2019"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+
+```{r}
+
+msa = read.csv("F:/mass-shootings-msa.csv")
+
+install.packages("FSelector")
+library(FSelector)
+```
+```{r}
+
+#running the filter based feature selection techniques
+
+victims <- msa$Total.Number.of.Victims
+
+information.gain(victims~msa$State +msa$History.of.Mental.Illness...General+msa$Shooter.Sex...Coded+msa$Average.Shooter.Age+msa$Total.Number.of.Guns+msa$Possible.Motive...General+msa$Military.Experience...Coded+msa$School.Related...Coded,msa)
+
+# This shows that average shooter age and state of shooting have a moderately high correlation with total number of victims per incident.
+
+
+
+```
+
+```{r}
+
+chi.squared(victims~msa$State+msa$Shooter.Sex...Coded+msa$Average.Shooter.Age+msa$Total.Number.of.Guns+msa$Possible.Motive...General+msa$Military.Experience...Coded+msa$School.Related...Coded)
+
+
+# This shows that state of incident, average shooter age, total number of guns, and possible motive have a moderately high correlation with total number of victims per incident. 
+
+```
+
+```{r}
+
+# running the random forest test, which is a wrapper-based feature selection technique
+
+random.forest.importance(victims~msa$State+msa$Shooter.Sex...Coded+msa$History.of.Mental.Illness...Coded+msa$Shooter.Sex...Coded, importance.type = 1)
+
+
+```
+
+```{r}
+install.packages("caret")
+library(caret)
+
+```
+
+```{r}
+
+##installing the packages for association rules
+
+
+install.packages("arules")
+install.packages("arulesViz")
+library(arules)
+library(arulesViz)
+
+```
+
+```{r}
+
+# mining for association rules
+
+msa_subset <- as.data.frame(msa[c(3,7,12,13,16,18,21,28,30)])
+apriori(msa_subset, parameter = list(support = 0.2, confidence = 0.8))
+
+```
+
+```{r}
+
+# making the dataset into factors
+
+msa_v2 <- lapply(msa, function(x){as.factor(x)})
+
+
+
+```
+
